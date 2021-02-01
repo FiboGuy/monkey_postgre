@@ -1,7 +1,6 @@
 import {PoolTest, PoolInteraction} from './../../lib'
 import {Connection} from './../../lib/Connection'
 import {assert} from 'chai'
-import {PoolClient, Client, Pool} from 'pg'
 
 describe('Database is connected correctly', () => {
     const poolInteraction: PoolTest = PoolTest.getInstance()

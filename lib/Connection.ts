@@ -18,9 +18,9 @@ export class Connection{
     }
 
     private createPool(): pg.Pool{
-        const config = `${homedir}/.monkey_postgre.json`
+        const config = `${homedir}/.monkey_config.json`
         if(fs.existsSync(config)){
-            const { host, user, password, database, port = 5432 } = JSON.parse(fs.readFileSync(config, 'utf-8'))
+            const { host, user, password, database, port = 5432 } = JSON.parse(fs.readFileSync(config, 'utf-8'))['db']
             return new pg.Pool({
                 host,
                 user,
