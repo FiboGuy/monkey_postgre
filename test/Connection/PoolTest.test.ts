@@ -16,7 +16,7 @@ describe('Database is connected correctly', () => {
  
     it('Inserts data correctly', async () => {
         const data = await poolInteraction.query(`INSERT INTO test_table (title, arrs, jsons) 
-        VALUES ('lolo', ARRAY [1,2,3] , '{"lolo":3}') RETURNING id`)
+        VALUES ('lolo', '{1,2,3}', '{"lolo":3}') RETURNING id`)
         assert.isTrue("rows" in data)
         assert.lengthOf(data.rows, 1)
         assert.isTrue("id" in data.rows[0])
@@ -38,7 +38,7 @@ describe('PoolInteraction transaction', () => {
     it('Transaction rollbacks correctly', async () => {
         await poolInteraction.transaction(async client => {
             await client.query(`INSERT INTO test_table (title, arrs, jsons) 
-            VALUES ('rollback', ARRAY [1,2,3] , '{"lolo":3}') RETURNING id`)
+            VALUES ('rollback', '{1,2,3}', '{"lolo":3}') RETURNING id`)
             throw Error('Dummy error')
         })
         const result = await poolInteraction.query("SELECT * FROM test_table WHERE title = 'rollback'")
@@ -48,7 +48,7 @@ describe('PoolInteraction transaction', () => {
     it('Transaction commits correctly', async () => {
         await poolInteraction.transaction(async client => {
             await client.query(`INSERT INTO test_table (title, arrs, jsons) 
-            VALUES ('commit', ARRAY [1,2,3] , '{"lolo":3}') RETURNING id`)
+            VALUES ('commit', '{1,2,3}', '{"lolo":3}') RETURNING id`)
         })
         let result = await poolInteraction.query("SELECT * FROM test_table WHERE title = 'commit'")
         assert.equal(1, result.rows.length)

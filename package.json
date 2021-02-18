@@ -6,19 +6,23 @@
   "scripts": {
     "build": "tsc",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'test/**/*.test.ts'",
-    "create-db": "./docker/create-db.sh"
+    "create-db": "./docker/create-db.sh",
+    "ts-node": "ts-node",
+    "create-schema": "node -e \"require('./build')['createSchemaSql']()\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "pg": "^8.5.1"
+  },
+  "devDependencies": {
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3",
     "@types/chai": "^4.2.14",
     "@types/mocha": "^8.2.0",
     "@types/node": "^14.14.22",
     "@types/pg": "^7.14.9",
     "chai": "^4.2.0",
-    "mocha": "^8.2.1",
-    "pg": "^8.5.1",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.1.3"
+    "mocha": "^8.2.1"
   }
 }
