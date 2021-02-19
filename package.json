@@ -8,7 +8,7 @@
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'test/**/*.test.ts'",
     "create-db": "./docker/create-db.sh",
     "ts-node": "ts-node",
-    "create-schema": "node -e \"require('./build')['createSchemaSql']()\""
+    "create-schema": "outDir=$PWD/schema.sql && rm $outDir || ts-node lib/Model/SchemaCreator.ts -- --baseDir=$PWD/test --outDir=$outDir"
   },
   "author": "",
   "license": "ISC",
