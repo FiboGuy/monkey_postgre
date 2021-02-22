@@ -7,7 +7,7 @@ export class TestTableModel extends Model
     private title: string
     private arrs: Array<number>
     private jsons: object
-    private created_at: string|undefined
+    private createdAt: string|undefined
 
     public constructor(pool: PoolTest, title: string, arrs: Array<number>, jsons: object){
         super(pool)
@@ -16,8 +16,29 @@ export class TestTableModel extends Model
         this.jsons = jsons
     }
 
+    public getId(){
+        return this.id
+    }
+
+    public getTitle(){
+        return this.title
+    }
+
+    public getArrs(){
+        return this.arrs
+    }
+    
+    public getJsons(){
+        return this.jsons
+    }
+
+    public getCreatedAt(){
+        return this.createdAt
+    }
+
     public static getSchema(): string{
-        return `CREATE TABLE test_table(
+        return `
+            CREATE TABLE test_table(
             id serial PRIMARY KEY,
             title VARCHAR(255) UNIQUE NOT NULL,
             arrs  integer [] NOT NULL,

@@ -32,7 +32,6 @@ function getAllModelsInDirectory(dir: string): Array<string>
     const models:Array<string> = []
     if(fs.lstatSync(dir).isDirectory()){
         fs.readdirSync(dir).forEach(e => {
-            console.log(e)
             models.push(...getAllModelsInDirectory(`${dir}/${e}`))
         })
     }else if(fs.lstatSync(dir).isFile()){
