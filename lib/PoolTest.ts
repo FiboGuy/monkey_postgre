@@ -11,7 +11,6 @@ export class PoolTest extends PoolInteraction{
     private callTestingEvent(): void{
         before(async () => {
            await this.pool.query("BEGIN")
-           console.log('before')
         })
         after(async () => {
             await this.pool.query("ROLLBACK")

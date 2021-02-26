@@ -6,7 +6,7 @@ import * as fs from 'fs'
 
 describe.only('Model testing methods', () => {
     const poolTest = PoolTest.getInstance()
-    const testTableModel = new TestTableModel(poolTest, 'lolo', [1,2,3], {})
+    const testTableModel = new TestTableModel(poolTest, 'lolo', [1,2,3], {'lolo': 3})
     
     it('Instance ok', () => {
         assert.isTrue(testTableModel instanceof Model)
@@ -24,8 +24,10 @@ describe.only('Model testing methods', () => {
         fs.rmSync(outDir)
     })
 
-    it('Should insert database properties', () => {
-
+    it('Should insert database properties', async () => {
+        await testTableModel.insert()
+        const result = await poolTest.query('SELECT * FROM test_table WHERE title = \'lolo\'')
+        assert.isTrue(result.row.length > 0)
     })
 
 

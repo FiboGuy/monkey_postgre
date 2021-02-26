@@ -1,9 +1,9 @@
-import pg from 'pg'
+import {Pool} from 'pg'
 import {homedir} from 'os'
 import * as fs from 'fs'
 
 export class Connection{
-    protected pool: pg.Pool
+    protected pool: Pool
     protected static instance: any = null
     
     protected constructor(){
@@ -17,11 +17,11 @@ export class Connection{
         return this.instance
     }
 
-    private createPool(): pg.Pool{
+    private createPool(): Pool{
         const config = `${homedir}/.monkey_config.json`
         if(fs.existsSync(config)){
             const { host, user, password, database, port = 5432 } = JSON.parse(fs.readFileSync(config, 'utf-8'))['db']
-            return new pg.Pool({
+            return new Pool({
                 host,
                 user,
                 password,
@@ -32,7 +32,7 @@ export class Connection{
         throw new Error('No config file database found')
     }
 
-    public getPool(): pg.Pool{
+    public getPool(): Pool{
         return this.pool
     }
 

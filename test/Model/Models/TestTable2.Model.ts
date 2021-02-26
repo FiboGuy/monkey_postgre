@@ -39,4 +39,8 @@ export class TestTable2Model extends Model
             ON DELETE SET NULL;   
           `
     }
+
+    protected getTableName(): string{
+        return 'test_table2'
+    }
 }

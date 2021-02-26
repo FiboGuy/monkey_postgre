@@ -46,4 +46,8 @@ export class TestTableModel extends Model
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );`
     }
+
+    protected getTableName(): string{
+        return 'test_table'
+    }
 }
