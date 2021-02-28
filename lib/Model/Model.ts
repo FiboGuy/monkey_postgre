@@ -22,16 +22,20 @@ export abstract class Model
             }
         }
       
-        let query = `INSERT INTO ${this.getTableName()} (${columns.join(',')}) VALUES (`
+        let query = `INSERT INTO ${this.getTableName()} (${columns.join(',')}) VALUES(`
         for(let e of values){
             if(typeof e === 'object'){
+                const isArray = Array.isArray(e)
                 e = JSON.stringify(e)
+                if(isArray){ 
+                    e = e.replace('[', '{')
+                    e = e.replace(']', '}')
+                }
             }
-            query += `"${e}",`
+            query += `\'${e}\',`
         }
-       
+
         try{
-            console.log(`${query.slice(0, -1)})`)
             await this.pool.query(`${query.slice(0, -1)})`)
         }catch(err){
             console.log(err)
