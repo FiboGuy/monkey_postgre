@@ -1,4 +1,4 @@
-import { PoolTest } from '../../../lib'
+import { PoolInteraction } from '../../../lib'
 import { Model } from '../../../lib/Model'
 
 export class TestTable2Model extends Model
@@ -7,7 +7,7 @@ export class TestTable2Model extends Model
     private title: string
     private testTable: number
 
-    public constructor(pool: PoolTest, title: string, testTable: number){
+    public constructor(pool: PoolInteraction, title: string, testTable: number){
         super(pool)
         this.title = title
         this.testTable = testTable

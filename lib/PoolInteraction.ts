@@ -19,4 +19,17 @@ export class PoolInteraction extends Connection{
         }
         client.release()
     }
+
+    public rollbackTesting(beforeCb: (() => void)|null = null, afterCb: (() => void)|null = null): void{
+        if(!beforeCb){
+            beforeCb = async () => await this.pool.query("BEGIN")
+        }
+        if(!afterCb){
+            afterCb = async () => {
+                await this.pool.query("ROLLBACK")
+            }
+        }
+        before(beforeCb)
+        after(afterCb)
+    }
 }

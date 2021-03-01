@@ -1,12 +1,13 @@
-import {PoolTest, createSchemaSql} from './../../lib'
+import {PoolInteraction, createSchemaSql} from './../../lib'
 import {TestTableModel} from './Models'
 import {Model} from '../../lib/Model'
 import {assert} from 'chai'
 import * as fs from 'fs'
 
-describe.only('Model testing methods', () => {
-    const poolTest = PoolTest.getInstance()
-    const testTableModel = new TestTableModel(poolTest, 'lolo', [1,2,3], {'lolo': 3})
+describe('Model testing methods', () => {
+    const poolInteraction = PoolInteraction.getInstance()
+    poolInteraction.rollbackTesting()
+    const testTableModel = new TestTableModel(poolInteraction, 'lolo', [1,2,3], {'lolo': 3})
     
     it('Instance ok', () => {
         assert.isTrue(testTableModel instanceof Model)
@@ -26,12 +27,14 @@ describe.only('Model testing methods', () => {
 
     it('Should insert database properties', async () => {
         await testTableModel.insert()
-        //const result = await poolTest.query('SELECT * FROM test_table WHERE title = \'lolo\'')
+        const result = await poolInteraction.query('SELECT * FROM test_table WHERE title = \'lolo\'')
+        assert.isTrue(result.rows.length == 1)
     })
 
 
-    it('Should find and map properties to class', () => {
-
+    it('Should find and map properties to class', async () => {
+        const result = await testTableModel.findBy({'title': 'lolo'}, {order: {title: 'ASC'}, limit: 1})
+        console.log(result)
     })
 
     it('Should update row in database correctly', () => {

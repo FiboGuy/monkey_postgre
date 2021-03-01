@@ -14,7 +14,6 @@ export class PoolTest extends PoolInteraction{
         })
         after(async () => {
             await this.pool.query("ROLLBACK")
-            this.pool.end()
         })
     }
 }

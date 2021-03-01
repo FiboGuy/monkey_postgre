@@ -1,16 +1,16 @@
-import {PoolTest, PoolInteraction} from './../../lib'
+import {PoolInteraction} from './../../lib'
 import {Connection} from './../../lib/Connection'
 import {assert} from 'chai'
 
 describe('Database is connected correctly', () => {
-    const poolInteraction: PoolTest = PoolTest.getInstance()
-
+    const poolInteraction: PoolInteraction = PoolInteraction.getInstance()
+    poolInteraction.rollbackTesting()
     it('Is not possible to instance Connection', () => {
         assert.equal(Connection.getInstance(), null)
     })
 
     it('PoolInteraction creates only one instance', () => {
-        const poolInteraction2: PoolTest = PoolTest.getInstance()
+        const poolInteraction2: PoolInteraction = PoolInteraction.getInstance()
         assert.equal(poolInteraction, poolInteraction2)
     })
  
@@ -25,10 +25,6 @@ describe('Database is connected correctly', () => {
 
 describe('PoolInteraction transaction', () => {
     const poolInteraction: PoolInteraction = PoolInteraction.getInstance()
-
-    after(() => {
-        poolInteraction.end()
-    })
 
     it('PoolInteraction creates only one instance', () => {
         const poolInteraction2: PoolInteraction = PoolInteraction.getInstance()
