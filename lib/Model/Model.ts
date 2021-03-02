@@ -4,10 +4,12 @@ export abstract class Model
 {
     protected pool: PoolInteraction
     private properties: object|undefined
+    private tableName: string
 
-    public constructor(pool: PoolInteraction)
+    public constructor()
     {
-        this.pool = pool
+        this.pool = PoolInteraction.getInstance()
+        this.tableName = this.getTableName()
     }
 
     public async insert(): Promise<void>
@@ -22,7 +24,7 @@ export abstract class Model
             }
         }
       
-        let query = `INSERT INTO ${this.getTableName()} (${columns.join(',')}) VALUES(`
+        let query = `INSERT INTO ${this.tableName} (${columns.join(',')}) VALUES(`
         for(let e of values){
             if(typeof e === 'object'){
                 const isArray = Array.isArray(e)
@@ -42,35 +44,9 @@ export abstract class Model
         }
     }
 
-    public async findBy(params: object, options: {limit?: number, order?: {[key: string]: 'ASC'|'DESC'}} = {}): Promise<object|null>
-    {
-        let query = `SELECT * FROM ${this.getTableName()}\n`
-        let first = false
-        for(const key in params){
-            if(!first){
-                query += `WHERE `
-                first = true
-            }else{
-                query += `AND `
-            }
-            query += `${key} = '${params[key]}'\n`
-        }
-        if(options['order']){
-            const key = Object.keys(options['order'])[0]
-            query += `ORDER BY ${key} ${options['order'][key]}\n`
-        }
-        if(options['limit']){
-            query += `LIMIT ${options['limit']}`
-        }
-        console.log(query)
-        const result = await this.pool.query(query)
-        console.log(result)
-        return result
-    }
-
     public mapPropertiesToModel(rows: any[]): void
     {
-
+        const properties = this.getProperties()
     }
 
     private getProperties(): object
@@ -79,8 +55,18 @@ export abstract class Model
             this.properties = Object.getOwnPropertyDescriptors(this)
             delete this.properties['pool']
             delete this.properties['properties']
+            delete this.properties['tableName']
         }
         return this.properties
     }
-    protected abstract getTableName():string
+
+    private getTableName(): string
+    {
+        try{
+            //@ts-ignore
+            return this.constructor.getTableName()
+        }catch(err){
+            throw Error('Model shouold have getTableName method')
+        }
+    }
 }

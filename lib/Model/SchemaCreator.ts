@@ -7,7 +7,7 @@ export function createSchemaSql(baseDir?: string, outDir?: string):void
         process.exit(1)
     }
     
-    let models
+    let models: string[]
     if(fs.lstatSync(baseDir).isDirectory()){
         models = getAllModelsInDirectory(baseDir)   
     }

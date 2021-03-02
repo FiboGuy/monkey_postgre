@@ -1,16 +1,15 @@
-import { PoolInteraction } from '../../../lib'
 import { Model } from '../../../lib/Model'
 
 export class TestTableModel extends Model
 {
     private id: number|undefined
     private title: string
-    private arrs: Array<number>
+    private arrs: number[]
     private jsons: object
     private createdAt: string|undefined
 
-    public constructor(pool: PoolInteraction, title: string, arrs: Array<number>, jsons: object){
-        super(pool)
+    public constructor(title: string, arrs: number[], jsons: object){
+        super()
         this.title = title
         this.arrs = arrs
         this.jsons = jsons
@@ -24,12 +23,24 @@ export class TestTableModel extends Model
         return this.title
     }
 
+    public setTitle(title: string){
+        this.title = title
+    }
+
     public getArrs(){
         return this.arrs
+    }
+
+    public setArrs(arrs: number[]){
+        this.arrs = arrs
     }
     
     public getJsons(){
         return this.jsons
+    }
+
+    public setJsons(jsons: object){
+        this.jsons = jsons
     }
 
     public getCreatedAt(){
@@ -47,7 +58,7 @@ export class TestTableModel extends Model
         );`
     }
 
-    protected getTableName(): string{
+    public static getTableName(): string{
         return 'test_table'
     }
 }

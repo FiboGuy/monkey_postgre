@@ -20,6 +20,34 @@ export class PoolInteraction extends Connection{
         client.release()
     }
 
+    public async findBy(Model: any, params: object, options: {limit?: number, order?: {[key: string]: 'ASC'|'DESC'}} = {}): Promise<object|null>
+    {
+        let query = `SELECT * FROM ${Model.getTableName()}\n`
+        let first = false
+        for(const key in params){
+            if(!first){
+                query += `WHERE `
+                first = true
+            }else{
+                query += `AND `
+            }
+            query += `${key} = '${params[key]}'\n`
+        }
+        if(options['order']){
+            const key = Object.keys(options['order'])[0]
+            query += `ORDER BY ${key} ${options['order'][key]}\n`
+        }
+        if(options['limit']){
+            query += `LIMIT ${options['limit']}`
+        }
+        const result = await this.pool.query(query)
+        if(result.rows[0]){
+            // this.mapPropertiesToModel(result.rows)
+            return result
+        }
+        return null
+    }
+
     public rollbackTesting(beforeCb: (() => void)|null = null, afterCb: (() => void)|null = null): void{
         if(!beforeCb){
             beforeCb = async () => await this.pool.query("BEGIN")

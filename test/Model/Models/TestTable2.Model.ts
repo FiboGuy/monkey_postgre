@@ -1,4 +1,3 @@
-import { PoolInteraction } from '../../../lib'
 import { Model } from '../../../lib/Model'
 
 export class TestTable2Model extends Model
@@ -7,8 +6,8 @@ export class TestTable2Model extends Model
     private title: string
     private testTable: number
 
-    public constructor(pool: PoolInteraction, title: string, testTable: number){
-        super(pool)
+    public constructor(title: string, testTable: number){
+        super()
         this.title = title
         this.testTable = testTable
     }
@@ -21,8 +20,16 @@ export class TestTable2Model extends Model
         return this.title
     }
 
+    public setTitle(title: string){
+        this.title = title
+    }
+
     public getTestTable(){
         return this.testTable
+    }
+
+    public setTestTable(testTable: number){
+        this.testTable = testTable
     }
 
     public static getSchema(): string{
@@ -40,7 +47,7 @@ export class TestTable2Model extends Model
           `
     }
 
-    protected getTableName(): string{
+    public static getTableName(): string{
         return 'test_table2'
     }
 }

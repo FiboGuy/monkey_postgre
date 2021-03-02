@@ -7,9 +7,10 @@ import * as fs from 'fs'
 describe('Model testing methods', () => {
     const poolInteraction = PoolInteraction.getInstance()
     poolInteraction.rollbackTesting()
-    const testTableModel = new TestTableModel(poolInteraction, 'lolo', [1,2,3], {'lolo': 3})
+    
     
     it('Instance ok', () => {
+        const testTableModel = new TestTableModel('lolo', [1,2,3], {'lolo': 3})
         assert.isTrue(testTableModel instanceof Model)
     })
 
@@ -26,16 +27,23 @@ describe('Model testing methods', () => {
     })
 
     it('Should insert database properties', async () => {
+        const testTableModel = new TestTableModel('lolo', [1,2,3], {'lolo': 3})
         await testTableModel.insert()
         const result = await poolInteraction.query('SELECT * FROM test_table WHERE title = \'lolo\'')
         assert.isTrue(result.rows.length == 1)
     })
 
+    // it.only('Find shoult return null when no rows in database', async () => {
+    //     const result = await poolInteraction.findBy(TestTableModel, {'title': 'sdasdsa'})
+    //     assert.isNull(result)
+    // })
 
-    it('Should find and map properties to class', async () => {
-        const result = await testTableModel.findBy({'title': 'lolo'}, {order: {title: 'ASC'}, limit: 1})
-        console.log(result)
-    })
+
+    // it('Should find and map properties to class', async () => {
+    //     const testTableModel = new TestTableModel('lolo2', [1,2,3], {'lolo': 3})
+    //     await testTableModel.insert()
+    //     const result = await poolInteraction.findBy({'title': 'lolo2'}, {order: {title: 'ASC'}, limit: 1})
+    // })
 
     it('Should update row in database correctly', () => {
 
