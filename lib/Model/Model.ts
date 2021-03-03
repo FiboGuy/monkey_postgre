@@ -44,11 +44,6 @@ export abstract class Model
         }
     }
 
-    public mapPropertiesToModel(rows: any[]): void
-    {
-        const properties = this.getProperties()
-    }
-
     private getProperties(): object
     {
         if(!this.properties){
@@ -60,7 +55,7 @@ export abstract class Model
         return this.properties
     }
 
-    private getTableName(): string
+    public getTableName(): string
     {
         try{
             //@ts-ignore
@@ -68,5 +63,14 @@ export abstract class Model
         }catch(err){
             throw Error('Model shouold have getTableName method')
         }
+    }
+
+    public static instanceModelWithProperties(row: {}): {}
+    {
+        const instance = Object.create(this.prototype)
+        for(const key in row){
+            instance[key] = row[key]
+        }
+        return instance
     }
 }

@@ -5,7 +5,7 @@ import {assert} from 'chai'
 import * as fs from 'fs'
 
 describe('Model testing methods', () => {
-    const poolInteraction = PoolInteraction.getInstance()
+    const poolInteraction:PoolInteraction = PoolInteraction.getInstance()
     poolInteraction.rollbackTesting()
     
     
@@ -33,17 +33,19 @@ describe('Model testing methods', () => {
         assert.isTrue(result.rows.length == 1)
     })
 
-    // it.only('Find shoult return null when no rows in database', async () => {
-    //     const result = await poolInteraction.findBy(TestTableModel, {'title': 'sdasdsa'})
-    //     assert.isNull(result)
-    // })
+    it('Find shoult return null when no rows in database', async () => {
+        const result = await poolInteraction.findBy(TestTableModel, {'title': 'sdasdsa'})
+        assert.isNull(result)
+    })
 
 
-    // it('Should find and map properties to class', async () => {
-    //     const testTableModel = new TestTableModel('lolo2', [1,2,3], {'lolo': 3})
-    //     await testTableModel.insert()
-    //     const result = await poolInteraction.findBy({'title': 'lolo2'}, {order: {title: 'ASC'}, limit: 1})
-    // })
+    it.only('Should find and map properties to class', async () => {
+        const testTableModel = new TestTableModel('lolo2', [1,2,3], {'lolo': 3})
+        await testTableModel.insert()
+        const result = await poolInteraction.findBy(TestTableModel, {'title': 'lolo2'}, {order: {title: 'ASC'}, limit: 1})
+        assert.isTrue(Array.isArray(result))
+        assert.instanceOf(TestTableModel, result[0])
+    })
 
     it('Should update row in database correctly', () => {
 

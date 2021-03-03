@@ -41,9 +41,12 @@ export class PoolInteraction extends Connection{
             query += `LIMIT ${options['limit']}`
         }
         const result = await this.pool.query(query)
-        if(result.rows[0]){
-            // this.mapPropertiesToModel(result.rows)
-            return result
+        const instances: object[] = []
+        if(result.rows[0]){             
+            for(const row of result.rows){
+                instances.push(Model.instanceModelWithProperties(row))
+            }
+            return instances   
         }
         return null
     }
