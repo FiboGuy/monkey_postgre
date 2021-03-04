@@ -4,12 +4,12 @@ export class TestTable2Model extends Model
 {
     private id: number|undefined
     private title: string
-    private testTable: number
+    private test_table_id: number
 
-    public constructor(title: string, testTable: number){
+    public constructor(title: string, test_table_id: number){
         super()
         this.title = title
-        this.testTable = testTable
+        this.test_table_id = test_table_id
     }
 
     public getId(){
@@ -24,12 +24,12 @@ export class TestTable2Model extends Model
         this.title = title
     }
 
-    public getTestTable(){
-        return this.testTable
+    public getTest_table_id(){
+        return this.test_table_id
     }
 
-    public setTestTable(testTable: number){
-        this.testTable = testTable
+    public setTest_table_id(testTable: number){
+        this.test_table_id = testTable
     }
 
     public static getSchema(): string{

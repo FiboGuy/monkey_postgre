@@ -6,7 +6,7 @@ export class TestTableModel extends Model
     private title: string
     private arrs: number[]
     private jsons: object
-    private createdAt: string|undefined
+    private created_at: string|undefined
 
     public constructor(title: string, arrs: number[], jsons: object){
         super()
@@ -43,8 +43,8 @@ export class TestTableModel extends Model
         this.jsons = jsons
     }
 
-    public getCreatedAt(){
-        return this.createdAt
+    public getCreated_at(){
+        return this.created_at
     }
 
     public static getSchema(): string{

@@ -20,7 +20,7 @@ export class PoolInteraction extends Connection{
         client.release()
     }
 
-    public async findBy(Model: any, params: object, options: {limit?: number, order?: {[key: string]: 'ASC'|'DESC'}} = {}): Promise<object|null>
+    public async findBy<T>(Model: any, params: object, options: {limit?: number, order?: {[key: string]: 'ASC'|'DESC'}} = {}): Promise<T[]|null>
     {
         let query = `SELECT * FROM ${Model.getTableName()}\n`
         let first = false
@@ -31,7 +31,15 @@ export class PoolInteraction extends Connection{
             }else{
                 query += `AND `
             }
-            query += `${key} = '${params[key]}'\n`
+            if(Array.isArray(params[key])){
+                query += `(`
+                for(const value of params[key]){
+                    query += `${key} = '${value}' OR `
+                }
+                query = query.slice(0, -3) + ')\n'
+            }else{
+                query += `${key} = '${params[key]}'\n`
+            }
         }
         if(options['order']){
             const key = Object.keys(options['order'])[0]
@@ -40,8 +48,9 @@ export class PoolInteraction extends Connection{
         if(options['limit']){
             query += `LIMIT ${options['limit']}`
         }
+
         const result = await this.pool.query(query)
-        const instances: object[] = []
+        const instances: T[] = []
         if(result.rows[0]){             
             for(const row of result.rows){
                 instances.push(Model.instanceModelWithProperties(row))

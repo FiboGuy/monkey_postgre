@@ -1,10 +1,10 @@
 import {PoolInteraction, createSchemaSql} from './../../lib'
-import {TestTableModel} from './Models'
+import {TestTableModel, TestTable2Model} from './Models'
 import {Model} from '../../lib/Model'
 import {assert} from 'chai'
 import * as fs from 'fs'
 
-describe('Model testing methods', () => {
+describe.only('Model testing methods', () => {
     const poolInteraction:PoolInteraction = PoolInteraction.getInstance()
     poolInteraction.rollbackTesting()
     
@@ -34,18 +34,43 @@ describe('Model testing methods', () => {
     })
 
     it('Find shoult return null when no rows in database', async () => {
-        const result = await poolInteraction.findBy(TestTableModel, {'title': 'sdasdsa'})
+        const result = await poolInteraction.findBy<TestTableModel>(TestTableModel, {'title': 'sdasdsa'}) as null
         assert.isNull(result)
     })
 
 
-    it.only('Should find and map properties to class', async () => {
+    it('Should find and map properties to class', async () => {
         const testTableModel = new TestTableModel('lolo2', [1,2,3], {'lolo': 3})
         await testTableModel.insert()
-        const result = await poolInteraction.findBy(TestTableModel, {'title': 'lolo2'}, {order: {title: 'ASC'}, limit: 1})
+        const result = await poolInteraction.findBy<TestTableModel>(TestTableModel, {'title': 'lolo2'})
         assert.isTrue(Array.isArray(result))
-        assert.instanceOf(TestTableModel, result[0])
+        assert.isTrue(result[0] instanceof TestTableModel)
     })
+
+    it('Should find all results with conditions', async () => {
+        const testTableModel = new TestTableModel('lolito', [], {})
+        const testTableId: number = await testTableModel.insert<number>()
+        const testTable2Model = new TestTable2Model('lolo3', testTableId)
+        const testTable2Model2 = new TestTable2Model('lolo4', testTableId)
+        await testTable2Model.insert()
+        await testTable2Model2.insert()
+        let result = await poolInteraction.findBy<TestTable2Model>(TestTable2Model, {'title': ['lolo3', 'lolo4']}, {order: {title: 'DESC'}})
+        assert.isTrue(Array.isArray(result))
+        assert.equal(result[0]['title'], 'lolo4')
+        assert.equal(result[1]['title'], 'lolo3')
+        //order and limit
+        result = await poolInteraction.findBy<TestTable2Model>(TestTable2Model, 
+            {'title': ['lolo3', 'lolo4']}, {order: {title: 'ASC'}, limit: 1})
+        assert.isTrue(Array.isArray(result))
+        assert.isTrue(result.length === 1)
+        console.log('entra')
+        assert.equal(result[0]['title'], 'lolo3')
+    })
+
+    it('Should limit to 1 correctly', async () => {
+       
+    })
+
 
     it('Should update row in database correctly', () => {
 

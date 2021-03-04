@@ -12,7 +12,7 @@ export abstract class Model
         this.tableName = this.getTableName()
     }
 
-    public async insert(): Promise<void>
+    public async insert<T>(): Promise<T>
     {
         const properties = this.getProperties()
         const columns: Array<any> = []
@@ -34,14 +34,12 @@ export abstract class Model
                     e = e.replace(']', '}')
                 }
             }
-            query += `\'${e}\',`
+            query += `'${e}',`
         }
 
-        try{
-            await this.pool.query(`${query.slice(0, -1)})`)
-        }catch(err){
-            console.log(err)
-        }
+        console.log(`${query.slice(0, -1)}) RETURNING ID`)
+        const result = await this.pool.query(`${query.slice(0, -1)}) RETURNING ID;`)
+        return result['rows'][0]['id']
     }
 
     private getProperties(): object
