@@ -3,6 +3,7 @@ import {TestTableModel, TestTable2Model} from './Models'
 import {Model} from '../../lib/Model'
 import {assert} from 'chai'
 import * as fs from 'fs'
+import { Test } from 'mocha'
 
 describe.only('Model testing methods', () => {
     const poolInteraction:PoolInteraction = PoolInteraction.getInstance()
@@ -34,7 +35,7 @@ describe.only('Model testing methods', () => {
     })
 
     it('Find shoult return null when no rows in database', async () => {
-        const result = await poolInteraction.findBy<TestTableModel>(TestTableModel, {'title': 'sdasdsa'}) as null
+        const result = await poolInteraction.findBy<TestTableModel>(TestTableModel, {'title': 'sdasdsa'}) as any
         assert.isNull(result)
     })
 
@@ -42,7 +43,7 @@ describe.only('Model testing methods', () => {
     it('Should find and map properties to class', async () => {
         const testTableModel = new TestTableModel('lolo2', [1,2,3], {'lolo': 3})
         await testTableModel.insert()
-        const result = await poolInteraction.findBy<TestTableModel>(TestTableModel, {'title': 'lolo2'})
+        const result = await poolInteraction.findBy<TestTableModel>(TestTableModel, {'title': 'lolo2'}) as any
         assert.isTrue(Array.isArray(result))
         assert.isTrue(result[0] instanceof TestTableModel)
     })
@@ -54,29 +55,49 @@ describe.only('Model testing methods', () => {
         const testTable2Model2 = new TestTable2Model('lolo4', testTableId)
         await testTable2Model.insert()
         await testTable2Model2.insert()
-        let result = await poolInteraction.findBy<TestTable2Model>(TestTable2Model, {'title': ['lolo3', 'lolo4']}, {order: {title: 'DESC'}})
+        let result = await poolInteraction.findBy<TestTable2Model>(TestTable2Model, {'title': ['lolo3', 'lolo4']}, {order: {title: 'DESC'}}) as any
         assert.isTrue(Array.isArray(result))
         assert.equal(result[0]['title'], 'lolo4')
         assert.equal(result[1]['title'], 'lolo3')
         //order and limit
         result = await poolInteraction.findBy<TestTable2Model>(TestTable2Model, 
-            {'title': ['lolo3', 'lolo4']}, {order: {title: 'ASC'}, limit: 1})
+            {'title': ['lolo3', 'lolo4']}, {order: {title: 'ASC'}, limit: 1}) as any
         assert.isTrue(Array.isArray(result))
-        assert.isTrue(result.length === 1)
-        console.log('entra')
+        assert.lengthOf(result, 1)
         assert.equal(result[0]['title'], 'lolo3')
     })
 
-    it('Should limit to 1 correctly', async () => {
-       
+    it('Should map correctly without findby and update row in database correctly ', async () => {
+        const testTableModel = new TestTableModel('lolito_update', [], {})
+        await testTableModel.insert()
+        const row = (await poolInteraction.query(`SELECT * FROM ${TestTableModel.getTableName()}`)).rows[0]
+        const testTable = TestTableModel.instanceModelWithProperties<TestTableModel>(row)
+        testTable.setTitle('lolito_updated')
+        await testTable.update()
+        let updatedRow = await poolInteraction.findBy<TestTableModel>(TestTableModel, {'title': 'lolito_update'})
+        assert.isNull(updatedRow)
+        updatedRow = await poolInteraction.findBy<TestTableModel>(TestTableModel, {'title': 'lolito_updated'}) as TestTableModel[]
+        assert.isNotNull(updatedRow)
+        assert.equal('lolito_updated', updatedRow[0].getTitle())
     })
 
-
-    it('Should update row in database correctly', () => {
-
-    })
-
-    it('Should map properties correctly with an external query', () => {
-
+    it.only('Test performance', async () => {
+        let testTableModel = new TestTableModel('trolito', [], {})
+        await testTableModel.insert()
+        const x  = await poolInteraction.findBy<TestTableModel>(TestTableModel, {'title': 'trolito'}) as TestTableModel[]
+        testTableModel = x[0]
+        let first = (new Date()).getTime()
+        for(let i = 0; i< 10000; i++){
+            testTableModel.setTitle('trolito'+i)
+            await testTableModel.update()
+        }
+        let second = (new Date()).getTime()
+        console.log((second - first)/1000)
+        first = (new Date()).getTime()
+        for(let i = 0; i< 10000; i++){
+            await poolInteraction.query(`UPDATE test_table SET title = 'tralita${i}' WHERE id = ${testTableModel.getId()}`)
+        }
+        second = (new Date()).getTime()
+        console.log((second - first)/1000)
     })
 })

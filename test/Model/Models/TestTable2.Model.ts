@@ -50,4 +50,9 @@ export class TestTable2Model extends Model
     public static getTableName(): string{
         return 'test_table2'
     }
+
+    protected getIdParam(): string
+    {
+        return 'id'
+    }
 }

@@ -61,4 +61,9 @@ export class TestTableModel extends Model
     public static getTableName(): string{
         return 'test_table'
     }
+
+    protected getIdParam(): string
+    {
+        return 'id'
+    }
 }

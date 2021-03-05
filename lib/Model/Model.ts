@@ -26,21 +26,45 @@ export abstract class Model
       
         let query = `INSERT INTO ${this.tableName} (${columns.join(',')}) VALUES(`
         for(let e of values){
-            if(typeof e === 'object'){
-                const isArray = Array.isArray(e)
-                e = JSON.stringify(e)
-                if(isArray){ 
-                    e = e.replace('[', '{')
-                    e = e.replace(']', '}')
-                }
-            }
+            e = this.getObjectValue(e)
             query += `'${e}',`
         }
 
-        console.log(`${query.slice(0, -1)}) RETURNING ID`)
-        const result = await this.pool.query(`${query.slice(0, -1)}) RETURNING ID;`)
-        return result['rows'][0]['id']
+        const result = await this.pool.query(`${query.slice(0, -1)}) RETURNING ${this.getIdParam()};`)
+        return result['rows'][0][this.getIdParam()]
     }
+
+    public async update(): Promise<void>
+    {
+        if(!this.pool){
+            this.pool = PoolInteraction.getInstance()
+        }
+        const properties = {...this.getProperties()}
+        const id = properties[this.getIdParam()].value
+
+        delete properties[this.getIdParam()]
+        let query = `UPDATE ${this.getTableName()} SET `
+   
+        for(const key in properties){
+            query += `${key} = \'${this.getObjectValue(properties[key]['value'])}\', `
+        }
+       
+        await this.pool.query(query.slice(0, -2) + ` WHERE ${this.getIdParam()} = ${id}`)
+    }
+
+    private getObjectValue(value: any): string|number
+    {
+        if(typeof value === 'object'){
+            const isArray = Array.isArray(value)
+            value = JSON.stringify(value)
+            if(isArray){ 
+                value = value.replace('[', '{')
+                value = value.replace(']', '}')
+            }
+        }
+        return value
+    }
+
 
     private getProperties(): object
     {
@@ -63,7 +87,7 @@ export abstract class Model
         }
     }
 
-    public static instanceModelWithProperties(row: {}): {}
+    public static instanceModelWithProperties<T>(row: {}): T
     {
         const instance = Object.create(this.prototype)
         for(const key in row){
@@ -71,4 +95,6 @@ export abstract class Model
         }
         return instance
     }
+
+    protected abstract getIdParam(): string
 }
