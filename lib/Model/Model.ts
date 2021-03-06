@@ -3,7 +3,6 @@ import { PoolInteraction } from '../PoolInteraction'
 export abstract class Model
 {
     protected pool: PoolInteraction
-    private properties: object|undefined
     private tableName: string
 
     public constructor()
@@ -34,7 +33,7 @@ export abstract class Model
         return result['rows'][0][this.getIdParam()]
     }
 
-    public async update(): Promise<void>
+    public async update(): Promise<any>
     {
         if(!this.pool){
             this.pool = PoolInteraction.getInstance()
@@ -48,8 +47,9 @@ export abstract class Model
         for(const key in properties){
             query += `${key} = \'${this.getObjectValue(properties[key]['value'])}\', `
         }
-       
-        await this.pool.query(query.slice(0, -2) + ` WHERE ${this.getIdParam()} = ${id}`)
+        
+        const result = await this.pool.query(query.slice(0, -2) + ` WHERE ${this.getIdParam()} = ${id}`)
+        return result
     }
 
     private getObjectValue(value: any): string|number
@@ -68,13 +68,11 @@ export abstract class Model
 
     private getProperties(): object
     {
-        if(!this.properties){
-            this.properties = Object.getOwnPropertyDescriptors(this)
-            delete this.properties['pool']
-            delete this.properties['properties']
-            delete this.properties['tableName']
-        }
-        return this.properties
+        const properties = Object.getOwnPropertyDescriptors(this)
+        delete properties['pool']
+        delete properties['tableName']
+      
+        return properties
     }
 
     public getTableName(): string

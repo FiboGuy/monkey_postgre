@@ -3,7 +3,6 @@ import {TestTableModel, TestTable2Model} from './Models'
 import {Model} from '../../lib/Model'
 import {assert} from 'chai'
 import * as fs from 'fs'
-import { Test } from 'mocha'
 
 describe.only('Model testing methods', () => {
     const poolInteraction:PoolInteraction = PoolInteraction.getInstance()
@@ -87,15 +86,31 @@ describe.only('Model testing methods', () => {
         const x  = await poolInteraction.findBy<TestTableModel>(TestTableModel, {'title': 'trolito'}) as TestTableModel[]
         testTableModel = x[0]
         let first = (new Date()).getTime()
+        
+    
         for(let i = 0; i< 10000; i++){
-            testTableModel.setTitle('trolito'+i)
-            await testTableModel.update()
+            await poolInteraction.transaction(async client => {
+                await client.query(`UPDATE test_table SET title = 'tralita${i}', 
+                arrs = '{}', jsons = '{}', created_at = '"2021-03-06T17:45:52.281Z"'  WHERE id = ${testTableModel.getId()}`)    
+            })
         }
+            // await poolInteraction.query(`UPDATE test_table SET title = 'tralita${i}', 
+            // arrs = '{}', jsons = '{}', created_at = '"2021-03-06T17:45:52.281Z"'  WHERE id = ${testTableModel.getId()}`)
+      
+            // const x = await poolInteraction.query(`SELECT * FROM test_table WHERE title='tralita${i}'`)
+            // console.log(x.rows)
+          
+            
+        
+       
         let second = (new Date()).getTime()
         console.log((second - first)/1000)
         first = (new Date()).getTime()
-        for(let i = 0; i< 10000; i++){
-            await poolInteraction.query(`UPDATE test_table SET title = 'tralita${i}' WHERE id = ${testTableModel.getId()}`)
+        for(let i = 0; i< 1; i++){
+            testTableModel.setTitle('trolito'+i)
+            await testTableModel.update()
+            // const x = await poolInteraction.query(`SELECT * FROM test_table WHERE title='trolito${i}'`)
+            // console.log(x.rows)
         }
         second = (new Date()).getTime()
         console.log((second - first)/1000)

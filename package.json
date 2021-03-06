@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'test/**/*.test.ts' --timeout 40000",
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'test/**/*.test.ts' --timeout 60000",
     "create-db": "./docker/create-db.sh",
     "ts-node": "ts-node",
     "create-schema": "outDir=$PWD/docker/schema.sql && ts-node lib/Model/SchemaCreator.ts -- --baseDir=$PWD/test --outDir=$outDir"
