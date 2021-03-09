@@ -39,7 +39,7 @@ export class TestTable2Model extends Model
             title VARCHAR(255) UNIQUE NOT NULL
         );  
             ALTER TABLE test_table2
-            ADD COLUMN test_table_id INT,
+            ADD COLUMN test_table_id INT NOT NULL,
             ADD CONSTRAINT fk_test_table
             FOREIGN KEY(test_table_id)
             REFERENCES test_table(id)

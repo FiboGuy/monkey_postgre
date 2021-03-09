@@ -15,7 +15,7 @@ export class TestTableModel extends Model
         this.jsons = jsons
     }
 
-    public getId(){
+    public getId(): number|undefined{
         return this.id
     }
 

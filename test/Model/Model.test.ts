@@ -4,10 +4,9 @@ import {Model} from '../../lib/Model'
 import {assert} from 'chai'
 import * as fs from 'fs'
 
-describe.only('Model testing methods', () => {
+describe('Model testing methods', () => {
     const poolInteraction:PoolInteraction = PoolInteraction.getInstance()
     poolInteraction.rollbackTesting()
-    
     
     it('Instance ok', () => {
         const testTableModel = new TestTableModel('lolo', [1,2,3], {'lolo': 3})
@@ -49,9 +48,9 @@ describe.only('Model testing methods', () => {
 
     it('Should find all results with conditions', async () => {
         const testTableModel = new TestTableModel('lolito', [], {})
-        const testTableId: number = await testTableModel.insert<number>()
-        const testTable2Model = new TestTable2Model('lolo3', testTableId)
-        const testTable2Model2 = new TestTable2Model('lolo4', testTableId)
+        await testTableModel.insert()
+        const testTable2Model = new TestTable2Model('lolo3', testTableModel.getId() as number)
+        const testTable2Model2 = new TestTable2Model('lolo4', testTableModel.getId() as number)
         await testTable2Model.insert()
         await testTable2Model2.insert()
         let result = await poolInteraction.findBy<TestTable2Model>(TestTable2Model, {'title': ['lolo3', 'lolo4']}, {order: {title: 'DESC'}}) as any
@@ -69,7 +68,7 @@ describe.only('Model testing methods', () => {
     it('Should map correctly without findby and update row in database correctly ', async () => {
         const testTableModel = new TestTableModel('lolito_update', [], {})
         await testTableModel.insert()
-        const row = (await poolInteraction.query(`SELECT * FROM ${TestTableModel.getTableName()}`)).rows[0]
+        const row = (await poolInteraction.query(`SELECT * FROM ${TestTableModel.getTableName()} WHERE id = ${testTableModel.getId()}`)).rows[0]
         const testTable = TestTableModel.instanceModelWithProperties<TestTableModel>(row)
         testTable.setTitle('lolito_updated')
         await testTable.update()
@@ -78,41 +77,5 @@ describe.only('Model testing methods', () => {
         updatedRow = await poolInteraction.findBy<TestTableModel>(TestTableModel, {'title': 'lolito_updated'}) as TestTableModel[]
         assert.isNotNull(updatedRow)
         assert.equal('lolito_updated', updatedRow[0].getTitle())
-    })
-
-    it.only('Test performance', async () => {
-        let testTableModel = new TestTableModel('trolito', [], {})
-        await testTableModel.insert()
-        const x  = await poolInteraction.findBy<TestTableModel>(TestTableModel, {'title': 'trolito'}) as TestTableModel[]
-        testTableModel = x[0]
-        let first = (new Date()).getTime()
-        
-    
-        for(let i = 0; i< 10000; i++){
-            await poolInteraction.transaction(async client => {
-                await client.query(`UPDATE test_table SET title = 'tralita${i}', 
-                arrs = '{}', jsons = '{}', created_at = '"2021-03-06T17:45:52.281Z"'  WHERE id = ${testTableModel.getId()}`)    
-            })
-        }
-            // await poolInteraction.query(`UPDATE test_table SET title = 'tralita${i}', 
-            // arrs = '{}', jsons = '{}', created_at = '"2021-03-06T17:45:52.281Z"'  WHERE id = ${testTableModel.getId()}`)
-      
-            // const x = await poolInteraction.query(`SELECT * FROM test_table WHERE title='tralita${i}'`)
-            // console.log(x.rows)
-          
-            
-        
-       
-        let second = (new Date()).getTime()
-        console.log((second - first)/1000)
-        first = (new Date()).getTime()
-        for(let i = 0; i< 1; i++){
-            testTableModel.setTitle('trolito'+i)
-            await testTableModel.update()
-            // const x = await poolInteraction.query(`SELECT * FROM test_table WHERE title='trolito${i}'`)
-            // console.log(x.rows)
-        }
-        second = (new Date()).getTime()
-        console.log((second - first)/1000)
     })
 })

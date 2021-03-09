@@ -11,7 +11,7 @@ export abstract class Model
         this.tableName = this.getTableName()
     }
 
-    public async insert<T>(): Promise<T>
+    public async insert(): Promise<void>
     {
         const properties = this.getProperties()
         const columns: Array<any> = []
@@ -28,12 +28,13 @@ export abstract class Model
             e = this.getObjectValue(e)
             query += `'${e}',`
         }
-
+       
         const result = await this.pool.query(`${query.slice(0, -1)}) RETURNING ${this.getIdParam()};`)
-        return result['rows'][0][this.getIdParam()]
+        //@ts-ignore
+        this.id = result['rows'][0][this.getIdParam()]
     }
 
-    public async update(): Promise<any>
+    public async update(): Promise<void>
     {
         if(!this.pool){
             this.pool = PoolInteraction.getInstance()
@@ -47,9 +48,8 @@ export abstract class Model
         for(const key in properties){
             query += `${key} = \'${this.getObjectValue(properties[key]['value'])}\', `
         }
-        
-        const result = await this.pool.query(query.slice(0, -2) + ` WHERE ${this.getIdParam()} = ${id}`)
-        return result
+
+        await this.pool.query(query.slice(0, -2) + ` WHERE ${this.getIdParam()} = ${id}`)
     }
 
     private getObjectValue(value: any): string|number

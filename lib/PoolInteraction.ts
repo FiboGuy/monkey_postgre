@@ -15,6 +15,7 @@ export class PoolInteraction extends Connection{
             await cb(client)
             client.query('COMMIT')
         }catch(err){
+            console.log(err.message)
             client.query('ROLLBACK')
         }
         client.release()
