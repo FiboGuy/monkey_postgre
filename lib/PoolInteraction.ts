@@ -52,7 +52,7 @@ export class PoolInteraction extends Connection{
 
         const result = await this.pool.query(query)
         const instances: T[] = []
-        if(result.rows[0]){             
+        if(result.rows[0]){        
             for(const row of result.rows){
                 instances.push(Model.instanceModelWithProperties(row))
             }

@@ -2,18 +2,10 @@ import { PoolInteraction } from '../PoolInteraction'
 
 export abstract class Model
 {
-    protected pool: PoolInteraction
-    private tableName: string
-
-    public constructor()
-    {
-        this.pool = PoolInteraction.getInstance()
-        this.tableName = this.getTableName()
-    }
-
     public async insert(): Promise<void>
     {
         const properties = this.getProperties()
+        const tableName = this.getTableName()
         const columns: Array<any> = []
         const values: Array<any> = []
         for(const key in properties){
@@ -23,24 +15,23 @@ export abstract class Model
             }
         }
       
-        let query = `INSERT INTO ${this.tableName} (${columns.join(',')}) VALUES(`
+        let query = `INSERT INTO ${tableName} (${columns.join(',')}) VALUES(`
         for(let e of values){
             e = this.getObjectValue(e)
             query += `'${e}',`
         }
-       
-        const result = await this.pool.query(`${query.slice(0, -1)}) RETURNING ${this.getIdParam()};`)
+        const pool = PoolInteraction.getInstance()
+        const result = await pool.query(`${query.slice(0, -1)}) RETURNING ${this.getIdParam()};`)
         //@ts-ignore
         this.id = result['rows'][0][this.getIdParam()]
+        await this.listenerCallBack('insert')
     }
 
     public async update(): Promise<void>
     {
-        if(!this.pool){
-            this.pool = PoolInteraction.getInstance()
-        }
+        const pool = PoolInteraction.getInstance()
         const properties = {...this.getProperties()}
-        const id = properties[this.getIdParam()].value
+        const id = properties[this.getIdParam()]['value']
 
         delete properties[this.getIdParam()]
         let query = `UPDATE ${this.getTableName()} SET `
@@ -49,7 +40,16 @@ export abstract class Model
             query += `${key} = \'${this.getObjectValue(properties[key]['value'])}\', `
         }
 
-        await this.pool.query(query.slice(0, -2) + ` WHERE ${this.getIdParam()} = ${id}`)
+        await pool.query(query.slice(0, -2) + ` WHERE ${this.getIdParam()} = ${id}`)
+        await this.listenerCallBack('update')
+    }
+
+    public async remove(): Promise<void>
+    {
+        const pool = PoolInteraction.getInstance()
+        const properties = {...this.getProperties()}
+        const id = properties[this.getIdParam()]['value']
+        await pool.query(`DELETE FROM ${this.getTableName()} WHERE ${this.getIdParam()} = ${id}`)
     }
 
     private getObjectValue(value: any): string|number
@@ -68,11 +68,7 @@ export abstract class Model
 
     private getProperties(): object
     {
-        const properties = Object.getOwnPropertyDescriptors(this)
-        delete properties['pool']
-        delete properties['tableName']
-      
-        return properties
+        return Object.getOwnPropertyDescriptors(this)
     }
 
     public getTableName(): string
@@ -81,7 +77,7 @@ export abstract class Model
             //@ts-ignore
             return this.constructor.getTableName()
         }catch(err){
-            throw Error('Model shouold have getTableName method')
+            throw Error('Model should have getTableName method')
         }
     }
 
@@ -93,6 +89,9 @@ export abstract class Model
         }
         return instance
     }
+
+    protected async listenerCallBack(type: 'insert'|'update'): Promise<void>
+    {}
 
     protected abstract getIdParam(): string
 }

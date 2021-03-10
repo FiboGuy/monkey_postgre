@@ -1,4 +1,6 @@
 import { Model } from '../../../lib/Model'
+import { TestTable2Model } from '.'
+import { PoolInteraction } from './../../../lib'
 
 export class TestTableModel extends Model
 {
@@ -65,5 +67,20 @@ export class TestTableModel extends Model
     protected getIdParam(): string
     {
         return 'id'
+    }
+
+    protected async listenerCallBack(type: 'insert'|'update'): Promise<void>
+    {
+        if(type === 'insert' && this.title === 'trigger_insert'){
+            const testTable2 = new TestTable2Model('trigger_inserted', this.id as number)
+            await testTable2.insert()
+        }else{
+            if(this.title === 'trigger_update'){
+                const poolInteraction: PoolInteraction = PoolInteraction.getInstance()
+                const testTable2 = await poolInteraction.findBy<TestTable2Model>(TestTable2Model, {'title': 'trigger_inserted'}) as TestTable2Model[]
+                testTable2[0].setTitle('trigger_updated')
+                await testTable2[0].update()
+            }
+        }  
     }
 }

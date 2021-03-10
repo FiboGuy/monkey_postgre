@@ -78,4 +78,46 @@ describe('Model testing methods', () => {
         assert.isNotNull(updatedRow)
         assert.equal('lolito_updated', updatedRow[0].getTitle())
     })
+
+    it('Should remove row from database correctly', async() => {
+        const testTable = new TestTableModel('remove', [], {})
+        await testTable.insert()
+        let row = await poolInteraction.findBy(TestTableModel, {'id': testTable.getId()})
+        await testTable.remove()
+        row = await poolInteraction.findBy(TestTableModel, {'id': testTable.getId()})
+        assert.isNull(row)
+    })
+
+    it('Should trigger listener when update or insert it\'s set or do anything if not', async () => {
+        const testTable = new TestTableModel('trigger_insert', [], {})
+        await testTable.insert()
+        //We made a new testTableModel2 to trigger when inserted
+        let testTable2 = await poolInteraction.findBy<TestTable2Model>(TestTable2Model, {'test_table_id': testTable.getId()}) as TestTable2Model[]
+        assert.isNotNull(testTable2)
+        assert.equal('trigger_inserted', testTable2[0].getTitle())
+        //Check update triggers 
+        testTable.setTitle('trigger_update')
+        await testTable.update()
+        testTable2 = await poolInteraction.findBy<TestTable2Model>(TestTable2Model, {'test_table_id': testTable.getId()}) as TestTable2Model[]  
+        assert.equal('trigger_updated', testTable2[0].getTitle())
+        //Nothing breaks here
+        await testTable2[0].remove()
+        const newRow = new TestTable2Model('lolito', testTable.getId() as number)
+        await newRow.insert()
+        assert.isNull(null)
+    })
+
+        // it.only('Test performance again', async () => {
+        //     for(let j = 0; j<10; j++){
+        //         const first = (new Date()).getTime()
+        //         for(let i = 0; i< 10000; i++){
+        //             const testTable = new TestTableModel(`dsadas${i}ds${j}`, [], {'lolo':'a'})
+        //             await testTable.insert()
+        //         }
+        //         const second = (new Date()).getTime()
+        //         console.log((second - first)/1000)
+
+        //     }
+            
+        // })
 })
